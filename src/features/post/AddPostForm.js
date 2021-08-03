@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import { addNewPost } from "./postsSlice";
 import {
   Button,
@@ -9,6 +9,7 @@ import {
   Grid,
   Container,
   Typography,
+  Box,
 } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
@@ -17,6 +18,11 @@ const useStyles = makeStyles((theme) => ({
   },
   form: {
     width: "100%", // Fix IE 11 issue.
+    marginBottom: theme.spacing(2),
+  },
+  submit: {
+    marginTop: theme.spacing(1),
+    float: "right",
   },
 }));
 
@@ -47,7 +53,7 @@ export const AddPostForm = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main">
       <Grid
         container
         alignItems="center"
@@ -62,25 +68,26 @@ export const AddPostForm = () => {
           }}
         >
           <TextField
+            multiline
+            minRows="3"
             id="content"
             name="content"
-            label="Post"
             value={content}
             onChange={onContentChanged}
             fullWidth
+            label="What's on your mind?"
           />
 
-          <div>
+          <Box className={classes.submit}>
             <Button
               onClick={onSavePostClicked}
               disabled={!canSave}
               color="primary"
-              fullWidth
               variant="contained"
             >
-              Save Post
+              Post
             </Button>
-          </div>
+          </Box>
         </form>
       </Grid>
     </Container>

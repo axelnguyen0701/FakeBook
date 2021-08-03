@@ -7,38 +7,76 @@ import CardActions from "@material-ui/core/CardActions";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import MaterialLink from "@material-ui/core/Link";
+import ThumbUpIcon from "@material-ui/icons/ThumbUp";
+import { makeStyles } from "@material-ui/core/styles";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchPosts, selectAllPosts, deletePost } from "./postsSlice";
 import { Link } from "react-router-dom";
 import { selectAllUsers } from "../users/usersSlice";
+import { TimeAgo } from "./TimeStamp";
 
+const useStyle = makeStyles((theme) => ({
+  inlineIcon: {
+    display: "flex",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  icon: {
+    marginRight: theme.spacing(0.5),
+  },
+}));
 const PostExcerpt = ({ post, users }) => {
   const dispatch = useDispatch();
   const postAuthor = users.find((user) => user.id === post.author);
+
+  const classes = useStyle();
+
+  function createMarkUp(content) {
+    return { __html: content };
+  }
+
   return (
     <Grid item xs={12}>
       <Card className="post-excerpt" key={post.id} variant="outlined">
         <CardContent>
+          {/* //Author */}
           <MaterialLink component={Link} to={postAuthor.url}>
             <Typography>{postAuthor.username}</Typography>
           </MaterialLink>
-
-          <Typography className="post-content">
-            {post.content.substring(0, 100)}
+          {/* Date */}
+          <Typography style={{ textAlign: "end" }}>
+            <TimeAgo timestamp={post.date} />
           </Typography>
-          <Typography className="likes">Likes: {post.likes}</Typography>
+          {/* Content */}
+          <Typography
+            className="post-content"
+            dangerouslySetInnerHTML={createMarkUp(post.content)}
+          ></Typography>
+          {/* Like */}
+
+          {/* Comments */}
           <ul className="comments">
             {post.comments.map((comment) => (
               <li className="comment-content" key={comment.id}>
                 <Typography>
                   {users.find((user) => user.id === comment.author).username}:
                 </Typography>
-                {comment.content}
+                <div dangerouslySetInnerHTML={createMarkUp(comment.content)} />
               </li>
             ))}
           </ul>
         </CardContent>
         <CardActions>
+          <Button>
+            <Typography className={classes.inlineIcon}>
+              <ThumbUpIcon
+                fontSize="small"
+                className={classes.icon}
+                color="primary"
+              />
+              <span> {post.likes}</span>
+            </Typography>
+          </Button>
           <Button
             color="secondary"
             variant="contained"
