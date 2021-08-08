@@ -26,15 +26,31 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 const PostExcerpt = ({ post, users }) => {
-  const dispatch = useDispatch();
   const postAuthor = users.find((user) => user.id === post.author);
-
+  const dispatch = useDispatch();
+  const userAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const loggedInUser = useSelector((state) => state.auth.user);
   const classes = useStyle();
 
   function createMarkUp(content) {
     return { __html: content };
   }
 
+  const renderDeleteButton = () => {
+    if (userAuthenticated && postAuthor.id === loggedInUser.id) {
+      return (
+        <Button
+          color="secondary"
+          variant="contained"
+          onClick={() => {
+            dispatch(deletePost(post.id));
+          }}
+        >
+          Delete
+        </Button>
+      );
+    }
+  };
   return (
     <Grid item xs={12}>
       <Card className="post-excerpt" key={post.id} variant="outlined">
@@ -77,15 +93,7 @@ const PostExcerpt = ({ post, users }) => {
               <span> {post.likes}</span>
             </Typography>
           </Button>
-          <Button
-            color="secondary"
-            variant="contained"
-            onClick={() => {
-              dispatch(deletePost(post.id));
-            }}
-          >
-            Delete
-          </Button>
+          {renderDeleteButton()}
         </CardActions>
       </Card>
     </Grid>

@@ -1,4 +1,8 @@
 import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../auth/authSlice";
+
+//MATERIAL-UI
 import { makeStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -8,6 +12,7 @@ import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import { Link as RouterLink } from "react-router-dom";
 import MaterialLink from "@material-ui/core/Link";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -21,7 +26,27 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const NavBar = () => {
+  const userAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const dispatch = useDispatch();
+
   const classes = useStyles();
+
+  const renderLoginButton = () => {
+    if (!userAuthenticated) {
+      return (
+        <Button color="inherit" component={RouterLink} to="/auth/login">
+          Login
+        </Button>
+      );
+    }
+    return (
+      <>
+        <Button color="inherit" onClick={() => dispatch(logout())}>
+          Log out
+        </Button>
+      </>
+    );
+  };
 
   return (
     <div className={classes.root}>
@@ -42,9 +67,7 @@ export const NavBar = () => {
             </MaterialLink>
           </Typography>
 
-          <Button color="inherit" component={RouterLink} to="/login">
-            Login
-          </Button>
+          {renderLoginButton()}
         </Toolbar>
       </AppBar>
     </div>
