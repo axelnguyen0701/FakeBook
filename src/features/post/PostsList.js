@@ -1,4 +1,9 @@
 import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchPosts, selectAllPosts, deletePost, likePost } from "./postsSlice";
+import { Link } from "react-router-dom";
+import { selectAllUsers } from "../users/usersSlice";
+import { TimeAgo } from "./TimeStamp";
 
 import Grid from "@material-ui/core/Grid";
 import Card from "@material-ui/core/Card";
@@ -9,11 +14,10 @@ import Button from "@material-ui/core/Button";
 import MaterialLink from "@material-ui/core/Link";
 import ThumbUpIcon from "@material-ui/icons/ThumbUp";
 import { makeStyles } from "@material-ui/core/styles";
-import { useSelector, useDispatch } from "react-redux";
-import { fetchPosts, selectAllPosts, deletePost } from "./postsSlice";
-import { Link } from "react-router-dom";
-import { selectAllUsers } from "../users/usersSlice";
-import { TimeAgo } from "./TimeStamp";
+import Avatar from "@material-ui/core/Avatar";
+import CardHeader from "@material-ui/core/CardHeader";
+import EditIcon from "@material-ui/icons/Edit";
+import { IconButton } from "@material-ui/core";
 
 const useStyle = makeStyles((theme) => ({
   inlineIcon: {
@@ -25,8 +29,12 @@ const useStyle = makeStyles((theme) => ({
     marginRight: theme.spacing(0.5),
   },
 }));
-const PostExcerpt = ({ post, users }) => {
-  const postAuthor = users.find((user) => user.id === post.author);
+export const PostExcerpt = ({ post, users, user }) => {
+  let postAuthor = user;
+  if (users) {
+    postAuthor = users.find((u) => u.id === post.author);
+  }
+
   const dispatch = useDispatch();
   const userAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const loggedInUser = useSelector((state) => state.auth.user);
@@ -52,51 +60,60 @@ const PostExcerpt = ({ post, users }) => {
     }
   };
   return (
-    <Grid item xs={12}>
-      <Card className="post-excerpt" key={post.id} variant="outlined">
-        <CardContent>
-          {/* //Author */}
+    <Card className="post-excerpt" key={post.id} variant="outlined">
+      <CardHeader
+        avatar={<Avatar alt={postAuthor.username} src={postAuthor.photo} />}
+        action={
+          <IconButton aria-label="edit">
+            <MaterialLink component={Link} to={post.url + "/edit"}>
+              <EditIcon />
+            </MaterialLink>
+          </IconButton>
+        }
+        title={
           <MaterialLink component={Link} to={postAuthor.url}>
-            <Typography>{postAuthor.username}</Typography>
+            {postAuthor.username}
           </MaterialLink>
-          {/* Date */}
-          <Typography style={{ textAlign: "end" }}>
-            <TimeAgo timestamp={post.date} />
-          </Typography>
-          {/* Content */}
-          <Typography
-            className="post-content"
-            dangerouslySetInnerHTML={createMarkUp(post.content)}
-          ></Typography>
-          {/* Like */}
+        }
+        subheader={<TimeAgo timestamp={post.date} />}
+      />
 
-          {/* Comments */}
-          <ul className="comments">
-            {post.comments.map((comment) => (
-              <li className="comment-content" key={comment.id}>
-                <Typography>
-                  {users.find((user) => user.id === comment.author).username}:
-                </Typography>
-                <div dangerouslySetInnerHTML={createMarkUp(comment.content)} />
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-        <CardActions>
-          <Button>
-            <Typography className={classes.inlineIcon}>
-              <ThumbUpIcon
-                fontSize="small"
-                className={classes.icon}
-                color="primary"
-              />
-              <span> {post.likes}</span>
-            </Typography>
-          </Button>
-          {renderDeleteButton()}
-        </CardActions>
-      </Card>
-    </Grid>
+      <CardContent>
+        {/* Date */}
+        <Typography style={{ textAlign: "end" }}></Typography>
+        {/* Content */}
+        <Typography
+          className="post-content"
+          dangerouslySetInnerHTML={createMarkUp(post.content)}
+        />
+
+        {/* Comments */}
+        <ul className="comments">
+          {post.comments.map((comment) => (
+            <li className="comment-content" key={comment.id}>
+              <Typography>
+                {users.find((user) => user.id === comment.author).username}:
+              </Typography>
+              <div dangerouslySetInnerHTML={createMarkUp(comment.content)} />
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+      <CardActions>
+        <Button onClick={() => dispatch(likePost({ post }))}>
+          <Typography className={classes.inlineIcon}>
+            {/* Like */}
+            <ThumbUpIcon
+              fontSize="small"
+              className={classes.icon}
+              color="primary"
+            />
+            <span> {post.likes.length}</span>
+          </Typography>
+        </Button>
+        {renderDeleteButton()}
+      </CardActions>
+    </Card>
   );
 };
 
@@ -123,15 +140,21 @@ export const PostsList = () => {
       .sort((a, b) => b.date.localeCompare(a.date));
 
     content = orderedPosts.map((post) => {
-      return <PostExcerpt post={post} key={post.id} users={users} />;
+      return (
+        <Grid item xs={12} key={post.id}>
+          <PostExcerpt post={post} users={users} />
+        </Grid>
+      );
     });
   } else if (postStatus === "failed") {
     content = <div>{error}</div>;
   }
 
   return (
-    <Grid container alignItems="stretch" spacing={3}>
-      {content}
+    <Grid container justifyContent="center" spacing={3}>
+      <Grid container item spacing={3} xs={6}>
+        {content}
+      </Grid>
     </Grid>
   );
 };

@@ -60,35 +60,37 @@ export const AddPostForm = () => {
         direction="column"
         className={classes.root}
       >
-        <Typography variant="h5">Add a New Post</Typography>
-        <form
-          className={classes.form}
-          onSubmit={(e) => {
-            e.preventDefault();
-          }}
-        >
-          <TextField
-            multiline
-            minRows="3"
-            id="content"
-            name="content"
-            value={content}
-            onChange={onContentChanged}
-            fullWidth
-            label="What's on your mind?"
-          />
+        <Grid container item xs={6}>
+          <Typography variant="h5">Add a New Post</Typography>
+          <form
+            className={classes.form}
+            onSubmit={(e) => {
+              e.preventDefault();
+            }}
+          >
+            <TextField
+              multiline
+              minRows="3"
+              id="content"
+              name="content"
+              value={content}
+              onChange={onContentChanged}
+              fullWidth
+              label="What's on your mind?"
+            />
 
-          <Box className={classes.submit}>
-            <Button
-              onClick={onSavePostClicked}
-              disabled={!canSave}
-              color="primary"
-              variant="contained"
-            >
-              Post
-            </Button>
-          </Box>
-        </form>
+            <Box className={classes.submit}>
+              <Button
+                onClick={onSavePostClicked}
+                disabled={!canSave}
+                color="primary"
+                variant="contained"
+              >
+                Post
+              </Button>
+            </Box>
+          </form>
+        </Grid>
       </Grid>
     </Container>
   );
