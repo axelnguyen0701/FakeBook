@@ -8,8 +8,6 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import IconButton from "@material-ui/core/IconButton";
-import MenuIcon from "@material-ui/icons/Menu";
 import { Link as RouterLink } from "react-router-dom";
 import MaterialLink from "@material-ui/core/Link";
 
@@ -27,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const NavBar = () => {
   const userAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
 
   const classes = useStyles();
@@ -41,6 +40,7 @@ export const NavBar = () => {
     }
     return (
       <>
+        <Typography>Hi {user.username}</Typography>
         <Button color="inherit" onClick={() => dispatch(logout())}>
           Log out
         </Button>
@@ -52,15 +52,6 @@ export const NavBar = () => {
     <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="menu"
-          >
-            <MenuIcon />
-          </IconButton>
-
           <Typography className={classes.title}>
             <MaterialLink component={RouterLink} to="/" color="inherit">
               Odin-book
