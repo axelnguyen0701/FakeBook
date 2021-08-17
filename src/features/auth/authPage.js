@@ -2,31 +2,75 @@ import React from "react";
 import FacebookLogin from "react-facebook-login";
 import { login, logout } from "./authSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
+
+//Material UI
+import { makeStyles } from "@material-ui/core/styles";
+import Grid from "@material-ui/core/Grid";
+import Button from "@material-ui/core/Button";
+import { Typography } from "@material-ui/core";
+
+const useStyle = makeStyles((theme) => ({
+  container: {
+    marginTop: theme.spacing(2),
+  },
+}));
+
 export const AuthPage = () => {
+  const history = useHistory();
+  const classes = useStyle();
   const dispatch = useDispatch();
   const userAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const responseFacebook = async (res) => {
-    const data = {
-      access_token: res.accessToken,
-    };
-    dispatch(login(data));
+    try {
+      const data = {
+        access_token: res.accessToken,
+      };
+      const response = await dispatch(login(data));
+      if (response.meta.requestStatus === "fulfilled") {
+        window.localStorage.setItem("access_tokens", res.accessToken);
+        history.push("/");
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  if (!userAuthenticated) {
+  const renderAuthPage = () => {
+    if (!userAuthenticated) {
+      return (
+        <FacebookLogin
+          appId="139677108274481"
+          autoLoad={true}
+          callback={responseFacebook}
+        />
+      );
+    }
+
     return (
-      <FacebookLogin
-        appId="139677108274481"
-        autoLoad={true}
-        callback={responseFacebook}
-      />
+      <>
+        <Typography>User already logged in</Typography>
+        <Button
+          onClick={() => dispatch(logout())}
+          color="secondary"
+          variant="contained"
+        >
+          Log out
+        </Button>
+      </>
     );
-  }
+  };
 
   return (
-    <>
-      <div>User already logged in</div>
-      <button onClick={() => dispatch(logout())}>Log out</button>
-    </>
+    <Grid
+      container
+      justifyContent="center"
+      alignItems="center"
+      direction="column"
+      className={classes.container}
+    >
+      {renderAuthPage()}
+    </Grid>
   );
 };

@@ -22,8 +22,7 @@ const authSlice = createSlice({
   extraReducers: {
     [login.fulfilled]: (state, action) => {
       state.isAuthenticated = true;
-      state.user = action.payload.createdUser;
-      window.localStorage.setItem("user_token", action.payload.token);
+      state.user = action.payload.user;
     },
   },
 });
