@@ -24,6 +24,19 @@ export const addNewPost = createAsyncThunk(
     return response.data;
   }
 );
+
+export const editPost = createAsyncThunk(
+  "posts/editPost",
+  async ({ postId, content }) => {
+    const response = await client.put(
+      `/posts/${postId}`,
+      { content },
+      axios_config
+    );
+    return response.data;
+  }
+);
+
 export const deletePost = createAsyncThunk(
   "posts/deletePost",
   async (postId) => {
@@ -32,7 +45,7 @@ export const deletePost = createAsyncThunk(
   }
 );
 
-export const likePost = createAsyncThunk("posts/likePost", async ({ post }) => {
+export const likePost = createAsyncThunk("posts/likePost", async (post) => {
   const response = await client.put(
     `/posts/${post.id}/likes`,
     {
@@ -42,6 +55,7 @@ export const likePost = createAsyncThunk("posts/likePost", async ({ post }) => {
   );
   return response.data;
 });
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,
@@ -60,6 +74,14 @@ const postsSlice = createSlice({
     },
     [addNewPost.fulfilled]: (state, action) => {
       state.posts.push(action.payload);
+    },
+    [editPost.fulfilled]: (state, action) => {
+      const { id, content } = action.payload;
+      const existingPost = state.posts.find((post) => post.id === id);
+
+      if (existingPost) {
+        existingPost.content = content;
+      }
     },
     [deletePost.fulfilled]: (state, action) => {
       state.posts = state.posts.filter((post) => post.id !== action.payload.id);

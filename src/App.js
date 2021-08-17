@@ -14,6 +14,7 @@ import { UserPage } from "./features/users/UserPage";
 import { UsersList } from "./features/users/UsersList";
 import { NavBar } from "./features/post/NavBar";
 import { AuthPage } from "./features/auth/authPage";
+import { Form } from "./features/post/EditForm";
 const App = () => {
   return (
     <Router>
@@ -32,6 +33,7 @@ const App = () => {
           />
           <Route exact path="/auth/login" component={AuthPage} />
           <Route exact path="/posts/:postId" component={SinglePostPage} />
+          <Route exact path="/posts/:postId/edit" component={Form} />
           <Route exact path="/users" component={UsersList} />
           <Route exact path="/users/:userId" component={UserPage} />
 
