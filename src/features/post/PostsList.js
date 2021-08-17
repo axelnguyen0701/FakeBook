@@ -29,6 +29,7 @@ const useStyle = makeStyles((theme) => ({
     marginRight: theme.spacing(0.5),
   },
 }));
+
 export const PostExcerpt = ({ post, users, user }) => {
   let postAuthor = user;
   if (users) {
@@ -100,7 +101,7 @@ export const PostExcerpt = ({ post, users, user }) => {
         </ul>
       </CardContent>
       <CardActions>
-        <Button onClick={() => dispatch(likePost({ post }))}>
+        <Button onClick={() => dispatch(likePost(post))}>
           <Typography className={classes.inlineIcon}>
             {/* Like */}
             <ThumbUpIcon
