@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { unwrapResult } from "@reduxjs/toolkit";
 import { makeStyles } from "@material-ui/core/styles";
 import { addNewPost } from "./postsSlice";
@@ -11,6 +11,8 @@ import {
   Typography,
   Box,
 } from "@material-ui/core";
+import MaterialLink from "@material-ui/core/Link";
+import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,6 +32,8 @@ export const AddPostForm = () => {
   const classes = useStyles();
   const [content, setContent] = useState("");
   const [addRequestStatus, setAddRequestStatus] = useState("idle");
+
+  const userAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const dispatch = useDispatch();
 
@@ -52,6 +56,53 @@ export const AddPostForm = () => {
     }
   };
 
+  const renderAddForm = () => {
+    if (!userAuthenticated) {
+      return (
+        <Typography>
+          Please{" "}
+          <MaterialLink component={Link} to="/auth/login">
+            log-in
+          </MaterialLink>{" "}
+          to add new post
+        </Typography>
+      );
+    }
+    return (
+      <>
+        <Typography variant="h5">Add a New Post</Typography>
+        <form
+          className={classes.form}
+          onSubmit={(e) => {
+            e.preventDefault();
+          }}
+        >
+          <TextField
+            multiline
+            minRows="3"
+            id="content"
+            name="content"
+            value={content}
+            onChange={onContentChanged}
+            fullWidth
+            label="What's on your mind?"
+          />
+
+          <Box className={classes.submit}>
+            <Button
+              onClick={onSavePostClicked}
+              disabled={!canSave}
+              color="primary"
+              variant="contained"
+            >
+              Post
+            </Button>
+          </Box>
+        </form>
+      </>
+    );
+  };
+
   return (
     <Container component="main">
       <Grid
@@ -61,35 +112,7 @@ export const AddPostForm = () => {
         className={classes.root}
       >
         <Grid container item xs={6}>
-          <Typography variant="h5">Add a New Post</Typography>
-          <form
-            className={classes.form}
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <TextField
-              multiline
-              minRows="3"
-              id="content"
-              name="content"
-              value={content}
-              onChange={onContentChanged}
-              fullWidth
-              label="What's on your mind?"
-            />
-
-            <Box className={classes.submit}>
-              <Button
-                onClick={onSavePostClicked}
-                disabled={!canSave}
-                color="primary"
-                variant="contained"
-              >
-                Post
-              </Button>
-            </Box>
-          </form>
+          {renderAddForm()}
         </Grid>
       </Grid>
     </Container>
