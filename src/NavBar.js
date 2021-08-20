@@ -63,6 +63,9 @@ export const NavBar = () => {
           >
             Requests
           </Button>
+          <Button component={RouterLink} to={`/users`} color="inherit">
+            Users
+          </Button>
           <Button
             component={RouterLink}
             to={`/users/${user.id}/friends`}
