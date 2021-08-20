@@ -12,9 +12,11 @@ import { PostsList } from "./features/post/PostsList";
 import { SinglePostPage } from "./features/post/SinglePostPage";
 import { UserPage } from "./features/users/UserPage";
 import { UsersList } from "./features/users/UsersList";
-import { NavBar } from "./features/post/NavBar";
+import { NavBar } from "./NavBar";
 import { AuthPage } from "./features/auth/authPage";
 import { Form } from "./features/post/EditForm";
+import { FriendRequestList } from "./features/users/FriendRequestList";
+import { FriendList } from "./features/users/FriendList";
 const App = () => {
   return (
     <Router>
@@ -36,7 +38,12 @@ const App = () => {
           <Route exact path="/posts/:postId/edit" component={Form} />
           <Route exact path="/users" component={UsersList} />
           <Route exact path="/users/:userId" component={UserPage} />
-
+          <Route exact path="/users/:userId/friends" component={FriendList} />
+          <Route
+            exact
+            path="/users/:userId/friend_requests"
+            component={FriendRequestList}
+          />
           <Redirect to="/" />
         </Switch>
       </Container>
