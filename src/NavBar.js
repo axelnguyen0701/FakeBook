@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { logout } from "../auth/authSlice";
+import { logout } from "./features/auth/authSlice";
 
 //MATERIAL-UI
 import { makeStyles } from "@material-ui/core/styles";
@@ -8,7 +8,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useHistory } from "react-router-dom";
 import MaterialLink from "@material-ui/core/Link";
 
 const useStyles = makeStyles((theme) => ({
@@ -24,11 +24,16 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export const NavBar = () => {
+  const history = useHistory();
   const userAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const user = useSelector((state) => state.auth.user);
   const dispatch = useDispatch();
 
   const classes = useStyles();
+
+  const handleNameClick = () => {
+    history.push(user.url);
+  };
 
   const renderLoginButton = () => {
     if (!userAuthenticated) {
@@ -40,7 +45,6 @@ export const NavBar = () => {
     }
     return (
       <>
-        <Typography>Hi {user.username}</Typography>
         <Button color="inherit" onClick={() => dispatch(logout())}>
           Log out
         </Button>
@@ -48,6 +52,28 @@ export const NavBar = () => {
     );
   };
 
+  const renderFriendsAndRequests = () => {
+    if (userAuthenticated) {
+      return (
+        <>
+          <Button
+            component={RouterLink}
+            to={`/users/${user.id}/friend_requests`}
+            color="inherit"
+          >
+            Requests
+          </Button>
+          <Button
+            component={RouterLink}
+            to={`/users/${user.id}/friends`}
+            color="inherit"
+          >
+            Friends
+          </Button>
+        </>
+      );
+    }
+  };
   return (
     <div className={classes.root}>
       <AppBar position="static">
@@ -57,7 +83,10 @@ export const NavBar = () => {
               Odin-book
             </MaterialLink>
           </Typography>
-
+          <Button onClick={handleNameClick} color="inherit">
+            {userAuthenticated ? `Hi, ${user.username}` : null}
+          </Button>
+          {renderFriendsAndRequests()}
           {renderLoginButton()}
         </Toolbar>
       </AppBar>

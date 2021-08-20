@@ -18,6 +18,9 @@ const authSlice = createSlice({
     logout(state, action) {
       state.isAuthenticated = false;
     },
+    requestAccepted(state, action) {
+      state.user = action.payload;
+    },
   },
   extraReducers: {
     [login.fulfilled]: (state, action) => {
@@ -29,4 +32,4 @@ const authSlice = createSlice({
 
 export default authSlice.reducer;
 
-export const { logout } = authSlice.actions;
+export const { logout, requestAccepted } = authSlice.actions;

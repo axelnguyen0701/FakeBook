@@ -10,6 +10,8 @@ export const PostsList = () => {
   const postStatus = useSelector((state) => state.posts.status);
   const error = useSelector((state) => state.posts.error);
   const posts = useSelector((state) => selectAllPosts(state));
+  const loggedInUser = useSelector((state) => state.auth.user);
+  const isLoggedIn = useSelector((state) => state.auth.isAuthenticated);
   const users = useSelector((state) => selectAllUsers(state));
 
   useEffect(() => {
@@ -23,17 +25,25 @@ export const PostsList = () => {
   if (postStatus === "loading") {
     content = <div className="loader">Loading...</div>;
   } else if (postStatus === "succeeded") {
-    const orderedPosts = posts
-      .slice()
-      .sort((a, b) => b.date.localeCompare(a.date));
+    if (!isLoggedIn) {
+      content = <div>No friends</div>;
+    } else {
+      const orderedPosts = posts
+        .filter(
+          (post) =>
+            post.author === loggedInUser.id ||
+            loggedInUser.friends.indexOf(post.author) !== -1
+        )
+        .sort((a, b) => b.date.localeCompare(a.date));
 
-    content = orderedPosts.map((post) => {
-      return (
-        <Grid item xs={12} key={post.id}>
-          <PostExcerpt post={post} users={users} />
-        </Grid>
-      );
-    });
+      content = orderedPosts.map((post) => {
+        return (
+          <Grid item xs={12} key={post.id}>
+            <PostExcerpt post={post} users={users} />
+          </Grid>
+        );
+      });
+    }
   } else if (postStatus === "failed") {
     content = <div>{error}</div>;
   }
