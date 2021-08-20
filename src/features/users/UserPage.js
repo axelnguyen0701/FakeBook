@@ -12,6 +12,7 @@ import UserCard from "./UserCard";
 export const UserPage = ({ match }) => {
   const { userId } = match.params;
   const user = useSelector((state) => selectUserById(state, userId));
+  const userLoggedIn = useSelector((state) => state.auth.user);
   const postsForUser = useSelector((state) => {
     const allPosts = selectAllPosts(state);
     return allPosts
@@ -24,6 +25,12 @@ export const UserPage = ({ match }) => {
       <PostExcerpt post={post} user={user} />
     </Grid>
   ));
+
+  const renderAddForm = () => {
+    if (user.id === userLoggedIn.id) {
+      return <AddPostForm />;
+    }
+  };
 
   return (
     <Container>
@@ -44,7 +51,7 @@ export const UserPage = ({ match }) => {
         </Grid>
         <Grid container item spacing={3} xs={6}>
           <Grid item xs={12}>
-            <AddPostForm />
+            {renderAddForm()}
           </Grid>
           {renderedPosts}
         </Grid>
