@@ -41,7 +41,7 @@ export const AuthPage = () => {
     if (!userAuthenticated) {
       return (
         <FacebookLogin
-          appId="247249547209466"
+          appId={process.env.REACT_APP_ID}
           autoLoad={true}
           callback={responseFacebook}
         />
