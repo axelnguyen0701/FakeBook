@@ -56,6 +56,18 @@ export const likePost = createAsyncThunk("posts/likePost", async (post) => {
   return response.data;
 });
 
+export const postComment = createAsyncThunk(
+  "posts/postComments",
+  async ({ postId, content }) => {
+    const response = await client.post(
+      `/posts/${postId}/comments`,
+      { content },
+      axios_config
+    );
+    return response.data;
+  }
+);
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,
@@ -79,9 +91,7 @@ const postsSlice = createSlice({
       const { id, content } = action.payload;
       const existingPost = state.posts.find((post) => post.id === id);
 
-      if (existingPost) {
-        existingPost.content = content;
-      }
+      existingPost.content = content;
     },
     [deletePost.fulfilled]: (state, action) => {
       state.posts = state.posts.filter((post) => post.id !== action.payload.id);
@@ -90,9 +100,14 @@ const postsSlice = createSlice({
       const { id, likes } = action.payload;
       const existingPost = state.posts.find((post) => post.id === id);
 
-      if (existingPost) {
-        existingPost.likes = likes;
-      }
+      existingPost.likes = likes;
+    },
+    [postComment.fulfilled]: (state, action) => {
+      console.log(action.payload);
+      const { post: postId } = action.payload;
+      const existingPost = state.posts.find((post) => post.id === postId);
+
+      existingPost.comments.push(action.payload);
     },
   },
 });

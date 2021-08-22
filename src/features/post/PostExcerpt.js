@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { TimeAgo } from "./TimeStamp";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 import { deletePost, likePost } from "./postsSlice";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -14,7 +14,13 @@ import { makeStyles } from "@material-ui/core/styles";
 import Avatar from "@material-ui/core/Avatar";
 import CardHeader from "@material-ui/core/CardHeader";
 import EditIcon from "@material-ui/icons/Edit";
-import { IconButton } from "@material-ui/core";
+import { Collapse, IconButton } from "@material-ui/core";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import Menu from "@material-ui/core/Menu";
+import MenuItem from "@material-ui/core/MenuItem";
+import DeleteIcon from "@material-ui/icons/Delete";
+import { AddCommentForm } from "./Comments/AddCommentForm";
+import { CommentList } from "./Comments/CommentList";
 
 const useStyle = makeStyles((theme) => ({
   inlineIcon: {
@@ -28,31 +34,69 @@ const useStyle = makeStyles((theme) => ({
 }));
 
 export const PostExcerpt = ({ post, users, user }) => {
+  const history = useHistory();
+  const dispatch = useDispatch();
+  // Props
+  const userAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const loggedInUser = useSelector((state) => state.auth.user);
+  const classes = useStyle();
   let postAuthor = user;
   if (users) {
     postAuthor = users.find((u) => u.id === post.author);
   }
-
-  const dispatch = useDispatch();
-  const userAuthenticated = useSelector((state) => state.auth.isAuthenticated);
-  const loggedInUser = useSelector((state) => state.auth.user);
-  const classes = useStyle();
-
+  // Utilities
   function createMarkUp(content) {
     return { __html: content };
   }
+  // Menu
+  const [anchorEl, setAnchorEl] = useState(null);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  //   Comments
+  const [showComments, setShowComments] = useState(false);
+
+  const renderMenu = () => {
+    if (userAuthenticated && postAuthor.id === loggedInUser.id) {
+      return (
+        <>
+          <IconButton
+            aria-label="more"
+            aria-controls="long-menu"
+            aria-haspopup="true"
+            onClick={handleClick}
+          >
+            <MoreVertIcon />
+          </IconButton>
+          <Menu
+            id="simple-menu"
+            anchorEl={anchorEl}
+            keepMounted
+            open={Boolean(anchorEl)}
+            onClose={handleClose}
+          >
+            <MenuItem onClick={handleClose}>{renderEditButton()}</MenuItem>
+            <MenuItem onClick={handleClose}>{renderDeleteButton()}</MenuItem>
+          </Menu>
+        </>
+      );
+    }
+  };
 
   const renderDeleteButton = () => {
     if (userAuthenticated && postAuthor.id === loggedInUser.id) {
       return (
         <Button
+          fullWidth
           color="secondary"
-          variant="contained"
           onClick={() => {
             dispatch(deletePost(post.id));
           }}
         >
-          Delete
+          <DeleteIcon /> Delete
         </Button>
       );
     }
@@ -61,11 +105,16 @@ export const PostExcerpt = ({ post, users, user }) => {
   const renderEditButton = () => {
     if (userAuthenticated && postAuthor.id === loggedInUser.id) {
       return (
-        <IconButton aria-label="edit">
-          <MaterialLink component={Link} to={post.url + "/edit"}>
-            <EditIcon />
-          </MaterialLink>
-        </IconButton>
+        <Button
+          fullWidth
+          color="primary"
+          aria-label="edit"
+          onClick={() => {
+            history.push(post.url + "/edit");
+          }}
+        >
+          <EditIcon /> Edit
+        </Button>
       );
     }
   };
@@ -87,12 +136,24 @@ export const PostExcerpt = ({ post, users, user }) => {
       );
     }
   };
+
+  const renderComments = () => {
+    return (
+      <Collapse in={showComments} timeout="auto" unmountOnExit>
+        <CardContent>
+          <AddCommentForm postId={post.id} />
+          <CommentList comments={post.comments} />
+        </CardContent>
+      </Collapse>
+    );
+  };
+
   return (
     <Card className="post-excerpt" key={post.id} variant="outlined">
       <CardHeader
         avatar={<Avatar alt={postAuthor.username} src={postAuthor.photo} />}
         // Edit post
-        action={renderEditButton()}
+        action={renderMenu()}
         title={
           <MaterialLink component={Link} to={postAuthor.url}>
             {postAuthor.username}
@@ -111,22 +172,18 @@ export const PostExcerpt = ({ post, users, user }) => {
         />
 
         {/* Comments */}
-        <ul className="comments">
-          {post.comments.map((comment) => (
-            <li className="comment-content" key={comment.id}>
-              <Typography>
-                {users.find((user) => user.id === comment.author).username}:
-              </Typography>
-              <div dangerouslySetInnerHTML={createMarkUp(comment.content)} />
-            </li>
-          ))}
-        </ul>
       </CardContent>
       <CardActions>
         {renderLikeButton()}
-
-        {renderDeleteButton()}
+        <Button
+          color="primary"
+          variant="contained"
+          onClick={() => setShowComments(!showComments)}
+        >
+          Comments
+        </Button>
       </CardActions>
+      {renderComments()}
     </Card>
   );
 };
