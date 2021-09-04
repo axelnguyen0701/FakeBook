@@ -141,8 +141,8 @@ export const PostExcerpt = ({ post, users, user }) => {
     return (
       <Collapse in={showComments} timeout="auto" unmountOnExit>
         <CardContent>
-          <AddCommentForm postId={post.id} />
           <CommentList comments={post.comments} />
+          <AddCommentForm postId={post.id} />
         </CardContent>
       </Collapse>
     );

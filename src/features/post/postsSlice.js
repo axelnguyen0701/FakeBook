@@ -68,6 +68,29 @@ export const postComment = createAsyncThunk(
   }
 );
 
+export const editComment = createAsyncThunk(
+  "posts/editComment",
+  async ({ commentId, content, postId }) => {
+    const response = await client.put(
+      `/posts/${postId}/comments/${commentId}`,
+      { content },
+      axios_config
+    );
+    return response.data;
+  }
+);
+
+export const deleteComment = createAsyncThunk(
+  "posts/deleteComment",
+  async ({ commentId, postId }) => {
+    const response = await client.delete(
+      `posts/${postId}/comments/${commentId}`,
+      axios_config
+    );
+    return response.data;
+  }
+);
+
 const postsSlice = createSlice({
   name: "posts",
   initialState,
@@ -103,11 +126,23 @@ const postsSlice = createSlice({
       existingPost.likes = likes;
     },
     [postComment.fulfilled]: (state, action) => {
-      console.log(action.payload);
       const { post: postId } = action.payload;
       const existingPost = state.posts.find((post) => post.id === postId);
-
       existingPost.comments.push(action.payload);
+    },
+    [deleteComment.fulfilled]: (state, action) => {
+      const { post: postId, id: commentId } = action.payload;
+      let existingPost = state.posts.find((post) => post.id === postId);
+      existingPost.comments = existingPost.comments.filter(
+        (comment) => comment.id !== commentId
+      );
+    },
+    [editComment.fulfilled]: (state, action) => {
+      const { post: postId, id: commentId, content } = action.payload;
+      let exisintComment = state.posts
+        .find((post) => post.id === postId)
+        .comments.find((comment) => comment.id === commentId);
+      exisintComment.content = content;
     },
   },
 });
@@ -117,3 +152,8 @@ export default postsSlice.reducer;
 export const selectAllPosts = (state) => state.posts.posts;
 export const selectPostById = (state, postId) =>
   state.posts.posts.find((post) => post.id === postId);
+export const selectCommentById = (state, postId, commentId) => {
+  return state.posts.posts
+    .find((post) => post.id === postId)
+    .comments.find((comment) => comment.id === commentId);
+};

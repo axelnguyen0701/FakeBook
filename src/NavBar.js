@@ -8,8 +8,9 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
-import { Link as RouterLink, useHistory } from "react-router-dom";
-import MaterialLink from "@material-ui/core/Link";
+import { useHistory } from "react-router-dom";
+import FacebookIcon from "@material-ui/icons/Facebook";
+import IconButton from "@material-ui/core/IconButton";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -19,6 +20,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
   title: {
+    cursor: "pointer",
     flexGrow: 1,
   },
 }));
@@ -31,14 +33,10 @@ export const NavBar = () => {
 
   const classes = useStyles();
 
-  const handleNameClick = () => {
-    history.push(user.url);
-  };
-
   const renderLoginButton = () => {
     if (!userAuthenticated) {
       return (
-        <Button color="inherit" component={RouterLink} to="/auth/login">
+        <Button color="inherit" onClick={() => history.push("/auth/login")}>
           Login
         </Button>
       );
@@ -57,18 +55,16 @@ export const NavBar = () => {
       return (
         <>
           <Button
-            component={RouterLink}
-            to={`/users/${user.id}/friend_requests`}
+            onClick={() => history.push(`/users/${user.id}/friend_requests`)}
             color="inherit"
           >
             Requests
           </Button>
-          <Button component={RouterLink} to={`/users`} color="inherit">
+          <Button onClick={() => history.push(`/users`)} color="inherit">
             Users
           </Button>
           <Button
-            component={RouterLink}
-            to={`/users/${user.id}/friends`}
+            onClick={() => history.push(`/users/${user.id}/friends`)}
             color="inherit"
           >
             Friends
@@ -81,12 +77,20 @@ export const NavBar = () => {
     <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
-          <Typography className={classes.title}>
-            <MaterialLink component={RouterLink} to="/" color="inherit">
-              Odin-book
-            </MaterialLink>
+          <IconButton color="inherit">
+            <FacebookIcon fontSize="large" />
+          </IconButton>
+
+          <Typography
+            className={classes.title}
+            onClick={() => history.push("/")}
+          >
+            Fakebook
           </Typography>
-          <Button onClick={handleNameClick} color="inherit">
+          <Button
+            onClick={() => history.push(`/users/${user.id}`)}
+            color="inherit"
+          >
             {userAuthenticated ? `Hi, ${user.username}` : null}
           </Button>
           {renderFriendsAndRequests()}

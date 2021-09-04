@@ -17,6 +17,7 @@ import { AuthPage } from "./features/auth/authPage";
 import { Form } from "./features/post/EditForm";
 import { FriendRequestList } from "./features/users/FriendRequestList";
 import { FriendList } from "./features/users/FriendList";
+import { EditCommentForm } from "./features/post/Comments/EditCommentForm";
 const App = () => {
   return (
     <Router>
@@ -36,6 +37,11 @@ const App = () => {
           <Route exact path="/auth/login" component={AuthPage} />
           <Route exact path="/posts/:postId" component={SinglePostPage} />
           <Route exact path="/posts/:postId/edit" component={Form} />
+          <Route
+            exact
+            path="/posts/:postId/comments/:commentId/edit"
+            component={EditCommentForm}
+          />
           <Route exact path="/users" component={UsersList} />
           <Route exact path="/users/:userId" component={UserPage} />
           <Route exact path="/users/:userId/friends" component={FriendList} />
